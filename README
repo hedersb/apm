@@ -1,0 +1,18 @@
+-- Adaptive Penalty Method --
+
+This project contains an implementation of the Adaptive Penalty Method, or
+shortly APM, proposed by H.J.C. Barbosa and A.C.C. Lemonge in 2003 which is
+used by evolutionary algorithms when solving constrained optimization problems.  
+
+More information about APM can be found in the following references:
+
+Helio J.C. Barbosa and Afonso C.C. Lemonge, 
+A new adaptive penalty scheme for genetic algorithms, 
+Information Sciences, Volume 156, Issues 3–4, 15 November 2003, Pages 215-251.
+(http://www.sciencedirect.com/science/article/pii/S0020025503001774)
+
+Lemonge, A. C. C. and Barbosa, H. J. C. (2004), 
+An adaptive penalty scheme for genetic algorithms in structural optimization. 
+International Journal for Numerical Methods in Engineering, 59: 703–736. 
+doi: 10.1002/nme.899
+
