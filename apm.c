@@ -16,6 +16,10 @@
  * This will generate a 'apm.o' object file.
  */
 
+/*
+ * Includes.
+ */
+#include <stdlib.h>
 
 /*
  * Name: calculatePenalizationCoefficients
@@ -44,7 +48,40 @@ void calculatePenalizationCoefficients (
     int numberOfConstraints, 
 	double* penalizationCoefficients ) {
 
-	
+	int i;
+	int j;
+	int l;
+	double sumObjectiveFunction = 0;
+	for( i=0; i < populationSize; i++ ) {
+
+		sumObjectiveFunction += objectiveFunctionValues[ i ];
+
+	}
+	if ( sumObjectiveFunction < 0 ) {
+		sumObjectiveFunction = -sumObjectiveFunction;
+	}
+
+	double denominator = 0;
+	double* sumViolation = (double*) malloc( numberOfConstraints * sizeof( double ) );
+	for( l=0; l < numberOfConstraints; l++ ) {
+
+		sumViolation[ l ] = 0;
+		for( i=0; i < populationSize; i++ ) {
+
+			sumViolation[ l ] += constraintViolationValues[ i ][ l ];
+
+		}
+
+		denominator += sumViolation[ l ] * sumViolation[ l ];
+	}
+
+	for( j=0; j < numberOfConstraints; j++ ) {
+
+		penalizationCoefficients[ j ] = ( sumObjectiveFunction / denominator ) * sumViolation[ j ];
+
+	}
+
+	free( sumViolation );
 
 }
 
@@ -66,7 +103,11 @@ void calculatePenalizationCoefficients (
  * - objectiveFunctionValues: values of the objective
  * function obtained by evaluating the candidate solutions;
  * - constraintViolationValues: values of the constraint 
- * violations obtained by evaluating the candidate violations;
+ * violations obtained by evaluating the candidate violations.
+ * It is important to highlight that, here, a candidate 
+ * solution 'x' is called infeasible if there is a restricttion 
+ * function 'g(x, i)' creater than zero, for all candidade 
+ * constraint 'i'.
  * - numberOfConstraints: the number of constraints of the
  * problem.
  * - penalizationCoefficients: penalization coefficients
@@ -82,6 +123,25 @@ void calculateFitness(
 	double* penalizationCoefficients ) {
 
 	
+	_Bool infeasible;
+	int i;
+	int j;
+	double penalization;
+	for( i=0; i < populationSize; i++ ) {
+	
+		infeasible = 0;
+		penalization = 0;
+		
+		for( j=0; j < numberOfConstraints; j++ ) {
+			
+			infeasible |= constraintViolationValues[ i ][ j ] > 0 ;
+			penalization += penalizationCoefficients[ j ] * constraintViolationValues[ i ][ j ];
+
+		}
+
+		fitnessValues[ i ] = infeasible ? objectiveFunctionValues[ i ] + penalization : objectiveFunctionValues[ i ];
+
+	}
 
 }
 
