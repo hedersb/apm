@@ -31,13 +31,17 @@ namespace apm {
 	/*
 	 * Constructor.
 	 */
-	AdaptivePenaltyMethod::AdaptivePenaltyMethod( ) {
+	AdaptivePenaltyMethod::AdaptivePenaltyMethod( const int numberOfConstraints ): 
+		numberOfConstraints( numberOfConstraints ),
+		sumViolation( new double[ numberOfConstraints ] ) {
 	}
 
 	/*
 	 * Contructor with a AdaptivePenaltyMethod object as parameter.
 	 */
-	AdaptivePenaltyMethod::AdaptivePenaltyMethod( const AdaptivePenaltyMethod& orig ) {
+	AdaptivePenaltyMethod::AdaptivePenaltyMethod( const AdaptivePenaltyMethod& orig ): 
+		numberOfConstraints( orig.numberOfConstraints ),
+		sumViolation( new double[ orig.numberOfConstraints ] ) {
 	}
 
 	/*
@@ -51,10 +55,9 @@ namespace apm {
 	 * Method to calculate the penalization coefficients.
 	 */
 	void AdaptivePenaltyMethod::calculatePenalizationCoefficients (
-		 int populationSize,
-		 double* objectiveFunctionValues,
-		 double** constraintViolationValues,
-		 int numberOfConstraints, 
+		int populationSize,
+		double* objectiveFunctionValues,
+		double** constraintViolationValues,
 		double* penalizationCoefficients ) {
 
 		int i;
@@ -74,25 +77,23 @@ namespace apm {
 
 		//the denominator of the equation of the penalization coefficients
 		double denominator = 0;
-		//the sum of the constraint violation values
-		//these values are recorded to be used in the next situation
-		double* sumViolation = new double[ numberOfConstraints ];
-		for( l=0; l < numberOfConstraints; l++ ) {
+		
+		for( l=0; l < this->numberOfConstraints; l++ ) {
 
-			sumViolation[ l ] = 0;
+			this->sumViolation[ l ] = 0;
 			for( i=0; i < populationSize; i++ ) {
 
-				sumViolation[ l ] += constraintViolationValues[ i ][ l ];
+				this->sumViolation[ l ] += constraintViolationValues[ i ][ l ];
 
 			}
 
-			denominator += sumViolation[ l ] * sumViolation[ l ];
+			denominator += this->sumViolation[ l ] * this->sumViolation[ l ];
 		}
 
 		//the penalization coefficients are calculated
-		for( j=0; j < numberOfConstraints; j++ ) {
+		for( j=0; j < this->numberOfConstraints; j++ ) {
 
-			penalizationCoefficients[ j ] = ( sumObjectiveFunction / denominator ) * sumViolation[ j ];
+			penalizationCoefficients[ j ] = ( sumObjectiveFunction / denominator ) * this->sumViolation[ j ];
 
 		}
 
@@ -110,7 +111,6 @@ namespace apm {
 		int populationSize, 
 		double* objectiveFunctionValues, 
 		double** constraintViolationValues,
-		int numberOfConstraints,
 		double* penalizationCoefficients ) {
 
 		//indicates if the candidate solution is infeasible
@@ -125,7 +125,7 @@ namespace apm {
 			infeasible = false;
 			penalization = 0;
 		
-			for( j=0; j < numberOfConstraints; j++ ) {
+			for( j=0; j < this->numberOfConstraints; j++ ) {
 			
 				//the candidate solution is infeasible if some constraint is violated
 				infeasible |= constraintViolationValues[ i ][ j ] > 0 ;

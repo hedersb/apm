@@ -13,8 +13,21 @@ namespace apm {
 
 class AdaptivePenaltyMethod {
 	public:
-		AdaptivePenaltyMethod(  );
+		/*
+		 * Constructor.
+		 * Parameters:
+		 * - numberOfConstraints: the number of constraints of the problem.
+		 */
+		AdaptivePenaltyMethod( const int numberOfConstraints );
+		
+		/*
+		 * Constructor.
+		 */
 		AdaptivePenaltyMethod( const AdaptivePenaltyMethod& orig );
+
+		/*
+		 * Destructor.
+		 */
 		virtual ~AdaptivePenaltyMethod( );
 		
 	/*
@@ -30,8 +43,6 @@ class AdaptivePenaltyMethod {
 	 * function obtained by evaluating the candidate solutions;
 	 * - constraintViolationValues: values of the constraint 
 	 * violations obtained by evaluating the candidate violations;
-	 * - numberOfConstraints: the number of constraints of the
-	 * problem.
 	 * - penalizationCoefficients: penalization coefficients
 	 * calculated by the adaptive penalty method and which
 	 * are used by the penalization function.
@@ -40,7 +51,6 @@ class AdaptivePenaltyMethod {
 		 int populationSize,
 		 double* objectiveFunctionValues,
 		 double** constraintViolationValues,
-		 int numberOfConstraints, 
 		 double* penalizationCoefficients );
 		 
 	/*
@@ -67,8 +77,6 @@ class AdaptivePenaltyMethod {
 	 * solution 'x' is called infeasible if there is a restricttion 
 	 * function 'g(x, i)' creater than zero, for all candidade 
 	 * constraint 'i'.
-	 * - numberOfConstraints: the number of constraints of the
-	 * problem.
 	 * - penalizationCoefficients: penalization coefficients
 	 * calculated by the adaptive penalty method and which
 	 * are used by the penalization function.
@@ -79,11 +87,11 @@ class AdaptivePenaltyMethod {
 		int populationSize, 
 		double* objectiveFunctionValues, 
 		double** constraintViolationValues,
-		int numberOfConstraints,
 		double* penalizationCoefficients );
 		
 	private:
-		
+		double* sumViolation;
+		int numberOfConstraints;
 		
 	};
 
