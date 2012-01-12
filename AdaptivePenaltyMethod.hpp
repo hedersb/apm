@@ -3,6 +3,22 @@
  * Author: Heder Soares Bernardino
  *
  * Created on January 12, 2012, 1:22 PM
+ *
+ *
+ * Implementation in C++ programming language of the
+ * Adaptive Penalty Method proposed by H.J.C. Barbosa 
+ * and A.C.C. Lemonge in 2003.
+ * Please, read README file for more information about
+ * the method.
+ *
+ * Compilation:
+ * Use the following command to compile this code:
+ * g++ -c AdaptivePenaltyMethod.cpp
+ * This will generate a 'AdaptivePenaltyMethod.o' object file.
+ * To use the AdaptivePenaltyMethod class, it is only necessary
+ * to include the "AdaptivePenaltyMethod.hpp" file, 
+ * to link the AdaptivePenaltyMethod.o to the compiled code, and
+ * to instantiate a object of this class.
  */
 
 #ifndef ADAPTIVEPENALTYMETHOD_HPP

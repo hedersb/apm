@@ -4,6 +4,7 @@
  * 
  * Created on January 12, 2012, 1:22 PM
  *
+ *
  * Implementation in C++ programming language of the
  * Adaptive Penalty Method proposed by H.J.C. Barbosa 
  * and A.C.C. Lemonge in 2003.
@@ -48,6 +49,8 @@ namespace apm {
 	 * Destructor.
 	 */
 	AdaptivePenaltyMethod::~AdaptivePenaltyMethod( ) {
+			//remove variables
+			delete[] this->sumViolation;
 	}
 
 
@@ -96,9 +99,6 @@ namespace apm {
 			penalizationCoefficients[ j ] = ( sumObjectiveFunction / denominator ) * this->sumViolation[ j ];
 
 		}
-
-		//remove auxiliary variables
-		delete[] sumViolation;
 
 	}
 
