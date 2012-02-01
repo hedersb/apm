@@ -38,7 +38,7 @@ public class AdaptivePenaltyMethod {
 	 * Parameters:
 	 * - numberOfConstraints: the number of constraints of the problem.
 	 */
-	AdaptivePenaltyMethod( int numberOfConstraints ) {
+	public AdaptivePenaltyMethod( int numberOfConstraints ) {
 		this.numberOfConstraints = numberOfConstraints;
 		this.sumViolation = new double[ numberOfConstraints ];
 	}
