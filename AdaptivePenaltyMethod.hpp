@@ -90,8 +90,8 @@ class AdaptivePenaltyMethod {
 	 * - constraintViolationValues: values of the constraint 
 	 * violations obtained by evaluating the candidate violations.
 	 * It is important to highlight that, here, a candidate 
-	 * solution 'x' is called infeasible if there is a restricttion 
-	 * function 'g(x, i)' creater than zero, for all candidade 
+	 * solution 'x' is called infeasible if there is a restriction 
+	 * function 'g(x, i)' greater than zero, for all candidate 
 	 * constraint 'i'.
 	 * - penalizationCoefficients: penalization coefficients
 	 * calculated by the adaptive penalty method and which
@@ -104,10 +104,42 @@ class AdaptivePenaltyMethod {
 		double* objectiveFunctionValues, 
 		double** constraintViolationValues,
 		double* penalizationCoefficients );
+	 
+	 
+	 /*
+	 * Name: calculateFitness
+	 * Description: Calculate the fitness values using 
+	 * the objective function and constraint violation
+	 * values by means a penalty function. This method
+	 * must be used after the penalization coefficients
+	 * have been calculated by the
+	 * 'calculatePenalizationCoefficients' method.
+	 * Also, the penalization method assumes that the 
+	 * user is trying to solve a minimization problem.
+	 * Parameters:
+	 * - objectiveFunctionValue: value of the objective
+	 * function obtained by evaluating the candidate solution;
+	 * - constraintViolationValues: values of the constraint 
+	 * violations obtained by evaluating the candidate solution.
+	 * It is important to highlight that, here, a candidate 
+	 * solution 'x' is called infeasible if there is a restriction 
+	 * function 'g(x, i)' greater than zero, for all candidate 
+	 * constraint 'i'.
+	 * - penalizationCoefficients: penalization coefficients
+	 * calculated by the adaptive penalty method and which
+	 * are used by the penalization function.
+	 */
+	 
+	 double calculateFitness( 
+		double objectiveFunctionValue, 
+		double* constraintViolationValues,
+		double* penalizationCoefficients );
+	 
 		
 	private:
 		double* sumViolation;
 		int numberOfConstraints;
+		double averageObjectiveFunctionValues;
 		
 	};
 

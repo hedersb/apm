@@ -34,7 +34,8 @@ namespace apm {
 	 */
 	AdaptivePenaltyMethod::AdaptivePenaltyMethod( const int numberOfConstraints ): 
 		numberOfConstraints( numberOfConstraints ),
-		sumViolation( new double[ numberOfConstraints ] ) {
+		sumViolation( new double[ numberOfConstraints ] ),
+		averageObjectiveFunctionValues(0) {
 	}
 
 	/*
@@ -42,7 +43,8 @@ namespace apm {
 	 */
 	AdaptivePenaltyMethod::AdaptivePenaltyMethod( const AdaptivePenaltyMethod& orig ): 
 		numberOfConstraints( orig.numberOfConstraints ),
-		sumViolation( new double[ orig.numberOfConstraints ] ) {
+		sumViolation( new double[ orig.numberOfConstraints ] ),
+		averageObjectiveFunctionValues( orig.averageObjectiveFunctionValues ) {
 	}
 
 	/*
@@ -77,6 +79,9 @@ namespace apm {
 		if ( sumObjectiveFunction < 0 ) {
 			sumObjectiveFunction = -sumObjectiveFunction;
 		}
+		
+		//average of the objective function values
+		this->averageObjectiveFunctionValues = sumObjectiveFunction / populationSize;
 
 		//the denominator of the equation of the penalization coefficients
 		double denominator = 0;
@@ -121,7 +126,7 @@ namespace apm {
 		double penalization;
 		for( i=0; i < populationSize; i++ ) {
 	
-			//the candidate solutions are assumed feasibles
+			//the candidate solutions are assumed feasible
 			infeasible = false;
 			penalization = 0;
 		
@@ -137,10 +142,49 @@ namespace apm {
 			//the fitness is the sum of the objective function and penalization values 
 			//if the candidate solution is infeasible and just the objective function value,
 			//otherwise
-			fitnessValues[ i ] = infeasible ? objectiveFunctionValues[ i ] + penalization : objectiveFunctionValues[ i ];
+			fitnessValues[ i ] = infeasible ? 
+				( objectiveFunctionValues[ i ] > this->averageObjectiveFunctionValues? objectiveFunctionValues[ i ] + penalization: this->averageObjectiveFunctionValues + penalization ) : 
+				objectiveFunctionValues[ i ];
 
 		}
 
+	}
+	
+	
+	/*
+	 * Method to calculate de fitness of a candidate solution.
+	 */
+	double AdaptivePenaltyMethod::calculateFitness( 
+		double objectiveFunctionValue, 
+		double* constraintViolationValues,
+		double* penalizationCoefficients ) {
+		
+		//indicates if the candidate solution is infeasible
+		bool infeasible;
+		int j;
+		//the penalization value
+		double penalization;
+	
+		//the candidate solutions are assumed feasible
+		infeasible = false;
+		penalization = 0;
+
+		for( j=0; j < this->numberOfConstraints; j++ ) {
+
+			//the candidate solution is infeasible if some constraint is violated
+			infeasible |= constraintViolationValues[ j ] > 0 ;
+			//the penalization value is updated
+			penalization += penalizationCoefficients[ j ] * constraintViolationValues[ j ];
+
+		}
+
+		//the fitness is the sum of the objective function and penalization values 
+		//if the candidate solution is infeasible and just the objective function value,
+		//otherwise
+		return infeasible ? 
+				( objectiveFunctionValue > this->averageObjectiveFunctionValues? objectiveFunctionValue + penalization: this->averageObjectiveFunctionValues + penalization ) : 
+				objectiveFunctionValue;
+		
 	}
 
 }
