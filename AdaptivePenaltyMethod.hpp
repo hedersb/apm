@@ -47,8 +47,8 @@ class AdaptivePenaltyMethod {
 		virtual ~AdaptivePenaltyMethod( );
 		
 	/*
-	 * Name: calculatePenalizationCoefficients
-	 * Description: Calculate the penalization coefficients 
+	 * Name: calculatePenaltyCoefficients
+	 * Description: Calculate the penalty coefficients 
 	 * using the objective function and constraint violation
 	 * values by using APM ideas.
 	 * Parameters:
@@ -59,25 +59,25 @@ class AdaptivePenaltyMethod {
 	 * function obtained by evaluating the candidate solutions;
 	 * - constraintViolationValues: values of the constraint 
 	 * violations obtained by evaluating the candidate violations;
-	 * - penalizationCoefficients: penalization coefficients
+	 * - penaltyCoefficients: penalty coefficients
 	 * calculated by the adaptive penalty method and which
-	 * are used by the penalization function.
+	 * are used by the penalty function.
 	 */
-	 void calculatePenalizationCoefficients (
+	 void calculatePenaltyCoefficients (
 		 int populationSize,
 		 double* objectiveFunctionValues,
 		 double** constraintViolationValues,
-		 double* penalizationCoefficients );
+		 double* penaltyCoefficients );
 		 
 	/*
 	 * Name: calculateFitness
 	 * Description: Calculate the fitness values using 
 	 * the objective function and constraint violation
 	 * values by means a penalty function. This method
-	 * must be used after the penalization coefficients
+	 * must be used after the penalty coefficients
 	 * have been calculated by the
-	 * 'calculatePenalizationCoefficients' method.
-	 * Also, the penalization method assumes that the 
+	 * 'calculatePenaltyCoefficients' method.
+	 * Also, the penalty method assumes that the 
 	 * user is trying to solve a minimization problem.
 	 * Parameters:
 	 * - fitnessValues: pointer to the fitness values 
@@ -93,9 +93,9 @@ class AdaptivePenaltyMethod {
 	 * solution 'x' is called infeasible if there is a restriction 
 	 * function 'g(x, i)' greater than zero, for all candidate 
 	 * constraint 'i'.
-	 * - penalizationCoefficients: penalization coefficients
+	 * - penaltyCoefficients: penalty coefficients
 	 * calculated by the adaptive penalty method and which
-	 * are used by the penalization function.
+	 * are used by the penalty function.
 	 */
 	 
 	 void calculateFitness( 
@@ -103,7 +103,7 @@ class AdaptivePenaltyMethod {
 		int populationSize, 
 		double* objectiveFunctionValues, 
 		double** constraintViolationValues,
-		double* penalizationCoefficients );
+		double* penaltyCoefficients );
 	 
 	 
 	 /*
@@ -111,10 +111,10 @@ class AdaptivePenaltyMethod {
 	 * Description: Calculate the fitness values using 
 	 * the objective function and constraint violation
 	 * values by means a penalty function. This method
-	 * must be used after the penalization coefficients
+	 * must be used after the penalty coefficients
 	 * have been calculated by the
-	 * 'calculatePenalizationCoefficients' method.
-	 * Also, the penalization method assumes that the 
+	 * 'calculatePenaltyCoefficients' method.
+	 * Also, the penalty method assumes that the 
 	 * user is trying to solve a minimization problem.
 	 * Parameters:
 	 * - objectiveFunctionValue: value of the objective
@@ -125,15 +125,15 @@ class AdaptivePenaltyMethod {
 	 * solution 'x' is called infeasible if there is a restriction 
 	 * function 'g(x, i)' greater than zero, for all candidate 
 	 * constraint 'i'.
-	 * - penalizationCoefficients: penalization coefficients
+	 * - penaltyCoefficients: penalty coefficients
 	 * calculated by the adaptive penalty method and which
-	 * are used by the penalization function.
+	 * are used by the penalty function.
 	 */
 	 
 	 double calculateFitness( 
 		double objectiveFunctionValue, 
 		double* constraintViolationValues,
-		double* penalizationCoefficients );
+		double* penaltyCoefficients );
 	 
 		
 	private:

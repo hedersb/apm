@@ -22,8 +22,8 @@
 #include <stdlib.h>
 
 /*
- * Name: calculatePenalizationCoefficients
- * Description: Calculate the penalization coefficients 
+ * Name: calculatePenaltyCoefficients
+ * Description: Calculate the penalty coefficients 
  * using the objective function and constraint violation
  * values by using APM ideas.
  * Also, the average of the objective function values is
@@ -38,65 +38,65 @@
  * violations obtained by evaluating the candidate violations;
  * - numberOfConstraints: the number of constraints of the
  * problem.
- * - penalizationCoefficients: penalization coefficients
+ * - penaltyCoefficients: penalty coefficients
  * calculated by the adaptive penalty method and which
- * are used by the penalization function.
+ * are used by the penalty function.
  * - averageObjectiveFunctionValues: a pointer which is used to 
  * archive the average of the objective function values.
  */
 
-void calculatePenalizationCoefficients(
+void calculatePenaltyCoefficients(
 	int populationSize,
 	double* objectiveFunctionValues,
 	double** constraintViolationValues,
 	int numberOfConstraints,
-	double* penalizationCoefficients, 
+	double* penaltyCoefficients, 
 	double* averageObjectiveFunctionValues) {
 
-    int i;
-    int j;
-    int l;
-    double sumObjectiveFunction = 0;
-    //foreach candidate solution
-    for (i = 0; i < populationSize; i++) {
-
-	sumObjectiveFunction += objectiveFunctionValues[ i ];
-
-    }
-    //the absolute of the sumObjectiveFunction
-    if (sumObjectiveFunction < 0) {
-	sumObjectiveFunction = -sumObjectiveFunction;
-    }
-    
-    //the average of the objective function values
-    *averageObjectiveFunctionValues = sumObjectiveFunction / populationSize;
-
-    //the denominator of the equation of the penalization coefficients
-    double denominator = 0;
-    //the sum of the constraint violation values
-    //these values are recorded to be used in the next situation
-    double* sumViolation = (double*) malloc(numberOfConstraints * sizeof ( double));
-    for (l = 0; l < numberOfConstraints; l++) {
-
-	sumViolation[ l ] = 0;
+	int i;
+	int j;
+	int l;
+	double sumObjectiveFunction = 0;
+	//foreach candidate solution
 	for (i = 0; i < populationSize; i++) {
 
-	    sumViolation[ l ] += constraintViolationValues[ i ][ l ];
+		sumObjectiveFunction += objectiveFunctionValues[ i ];
+
+	}
+	//the absolute of the sumObjectiveFunction
+	if (sumObjectiveFunction < 0) {
+		sumObjectiveFunction = -sumObjectiveFunction;
+	}
+	
+	//the average of the objective function values
+	*averageObjectiveFunctionValues = sumObjectiveFunction / populationSize;
+
+	//the denominator of the equation of the penalty coefficients
+	double denominator = 0;
+	//the sum of the constraint violation values
+	//these values are recorded to be used in the next situation
+	double* sumViolation = (double*) malloc(numberOfConstraints * sizeof ( double));
+	for (l = 0; l < numberOfConstraints; l++) {
+
+		sumViolation[ l ] = 0;
+		for (i = 0; i < populationSize; i++) {
+
+			sumViolation[ l ] += constraintViolationValues[ i ][ l ] > 0? constraintViolationValues[ i ][ l ]: 0;
+
+		}
+
+		denominator += sumViolation[ l ] * sumViolation[ l ];
+	}
+
+	//the penalty coefficients are calculated
+	for (j = 0; j < numberOfConstraints; j++) {
+
+		penaltyCoefficients[ j ] = denominator == 0? 0: (sumObjectiveFunction / denominator) * sumViolation[ j ];
 
 	}
 
-	denominator += sumViolation[ l ] * sumViolation[ l ];
-    }
-
-    //the penalization coefficients are calculated
-    for (j = 0; j < numberOfConstraints; j++) {
-
-	penalizationCoefficients[ j ] = (sumObjectiveFunction / denominator) * sumViolation[ j ];
-
-    }
-
-    //remove auxiliary variables
-    free(sumViolation);
+	//remove auxiliary variables
+	free(sumViolation);
 
 }
 
@@ -106,10 +106,10 @@ void calculatePenalizationCoefficients(
  * Description: Calculate the fitness values using 
  * the objective function and constraint violation
  * values by means a penalty function. This method
- * must be used after the penalization coefficients
+ * must be used after the penalty coefficients
  * have been calculated by the
- * 'calculatePenalizationCoefficients' method.
- * Also, the penalization method assumes that the 
+ * 'calculatePenaltyCoefficients' method.
+ * Also, the penalty method assumes that the 
  * user is trying to solve a minimization problem.
  * Parameters:
  * - fitnessValues: pointer to the fitness values 
@@ -127,9 +127,9 @@ void calculatePenalizationCoefficients(
  * constraint 'i'.
  * - numberOfConstraints: the number of constraints of the
  * problem.
- * - penalizationCoefficients: penalization coefficients
+ * - penaltyCoefficients: penalty coefficients
  * calculated by the adaptive penalty method and which
- * are used by the penalization function.
+ * are used by the penalty function.
  */
 void calculateAllFitness(
 	double* fitnessValues,
@@ -137,38 +137,40 @@ void calculateAllFitness(
 	double* objectiveFunctionValues,
 	double** constraintViolationValues,
 	int numberOfConstraints,
-	double* penalizationCoefficients,
+	double* penaltyCoefficients,
 	double averageObjectiveFunctionValues) {
 
-    //indicates if the candidate solution is infeasible
-    _Bool infeasible;
-    int i;
-    int j;
-    //the penalization value
-    double penalization;
-    for (i = 0; i < populationSize; i++) {
+	//indicates if the candidate solution is infeasible
+	_Bool infeasible;
+	int i;
+	int j;
+	//the penalty value
+	double penalty;
+	for (i = 0; i < populationSize; i++) {
 
-	//the candidate solutions are assumed feasibles
-	infeasible = 0;
-	penalization = 0;
+		//the candidate solutions are assumed feasibles
+		infeasible = 0;
+		penalty = 0;
 
-	for (j = 0; j < numberOfConstraints; j++) {
+		for (j = 0; j < numberOfConstraints; j++) {
 
-	    //the candidate solution is infeasible if some constraint is violated
-	    infeasible |= constraintViolationValues[ i ][ j ] > 0;
-	    //the penalization value is updated
-	    penalization += penalizationCoefficients[ j ] * constraintViolationValues[ i ][ j ];
+			if ( constraintViolationValues[ i ][ j ] > 0 ) {
+				//the candidate solution is infeasible if some constraint is violated
+				infeasible = 1;
+				//the penalty value is updated
+				penalty += penaltyCoefficients[ j ] * constraintViolationValues[ i ][ j ];
+			}
+
+		}
+
+		//the fitness is the sum of the objective function and penalty values 
+		//if the candidate solution is infeasible and just the objective function value,
+		//otherwise
+		fitnessValues[ i ] = infeasible ? 
+			(objectiveFunctionValues[ i ] > averageObjectiveFunctionValues? objectiveFunctionValues[ i ] + penalty: averageObjectiveFunctionValues + penalty) : 
+			objectiveFunctionValues[ i ];
 
 	}
-
-	//the fitness is the sum of the objective function and penalization values 
-	//if the candidate solution is infeasible and just the objective function value,
-	//otherwise
-	fitnessValues[ i ] = infeasible ? 
-	    (objectiveFunctionValues[ i ] > averageObjectiveFunctionValues? objectiveFunctionValues[ i ] + penalization: averageObjectiveFunctionValues + penalization) : 
-	    objectiveFunctionValues[ i ];
-
-    }
 
 }
 
@@ -178,10 +180,10 @@ void calculateAllFitness(
  * Description: This function calculates the fitness values using 
  * the objective function and constraint violation
  * values by means a penalty function. This method
- * must be used after the penalization coefficients
+ * must be used after the penalty coefficients
  * have been calculated by the
- * 'calculatePenalizationCoefficients' method.
- * Also, the penalization method assumes that the 
+ * 'calculatePenaltyCoefficients' method.
+ * Also, the penalty method assumes that the 
  * user is trying to solve a minimization problem.
  * Parameters:
  * - objectiveFunctionValue: value of the objective
@@ -194,42 +196,44 @@ void calculateAllFitness(
  * constraint 'i'.
  * - numberOfConstraints: the number of constraints of the
  * problem.
- * - penalizationCoefficients: penalization coefficients
+ * - penaltyCoefficients: penalty coefficients
  * calculated by the adaptive penalty method and which
- * are used by the penalization function.
+ * are used by the penalty function.
  */
 double calculateFitness(
 	double objectiveFunctionValue,
 	double* constraintViolationValues,
 	int numberOfConstraints,
-	double* penalizationCoefficients,
+	double* penaltyCoefficients,
 	double averageObjectiveFunctionValues) {
 
-    //indicates if the candidate solution is infeasible
-    _Bool infeasible;
-    int j;
-    //the penalization value
-    double penalization;
+	//indicates if the candidate solution is infeasible
+	_Bool infeasible;
+	int j;
+	//the penalty value
+	double penalty;
 
 	//the candidate solutions are assumed feasible
 	infeasible = 0;
-	penalization = 0;
+	penalty = 0;
 
 	for (j = 0; j < numberOfConstraints; j++) {
 
-	    //the candidate solution is infeasible if some constraint is violated
-	    infeasible |= constraintViolationValues[ j ] > 0;
-	    //the penalization value is updated
-	    penalization += penalizationCoefficients[ j ] * constraintViolationValues[ j ];
+		if ( constraintViolationValues[ j ] > 0 ) {
+			//the candidate solution is infeasible if some constraint is violated
+			infeasible = 1;
+			//the penalty value is updated
+			penalty += penaltyCoefficients[ j ] * constraintViolationValues[ j ];
+		}
 
 	}
 
-	//the fitness is the sum of the objective function and penalization values 
+	//the fitness is the sum of the objective function and penalty values 
 	//if the candidate solution is infeasible and just the objective function value,
 	//otherwise
 	return infeasible ? 
-	    (objectiveFunctionValue > averageObjectiveFunctionValues? objectiveFunctionValue + penalization: averageObjectiveFunctionValues + penalization) : 
-	    objectiveFunctionValue;
+		(objectiveFunctionValue > averageObjectiveFunctionValues? objectiveFunctionValue + penalty: averageObjectiveFunctionValues + penalty) : 
+		objectiveFunctionValue;
 
 }
 
